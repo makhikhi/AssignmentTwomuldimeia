@@ -209,7 +209,7 @@ public class WhiteboardApp extends Application {
 
             // Center video
             mediaView.setX(50);
-            mediaView.setY(10); // Position vertically
+            mediaView.setY(10); 
 
             // Set hand cursor for video
             mediaView.setCursor(javafx.scene.Cursor.HAND);
