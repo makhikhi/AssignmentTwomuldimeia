@@ -1,0 +1,82 @@
+package popint.whiteboard;
+
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.TextInputDialog;
+import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
+
+import java.util.Optional;
+import java.util.function.Supplier;
+
+public class AddTextAction {
+    private final StackPane board;
+    private final Supplier<Color> colorSupplier;
+
+    public AddTextAction(StackPane board, Supplier<Color> colorSupplier) {
+        this.board = board;
+        this.colorSupplier = colorSupplier;
+    }
+
+    public void execute() {
+        // Ask for font and size
+        Optional<Font> selectedFont = showFontSelectionDialog();
+
+        if (selectedFont.isPresent()) {
+            // Ask for text input
+            TextInputDialog textDialog = new TextInputDialog();
+            textDialog.setTitle("Add Text");
+            textDialog.setHeaderText("Enter text:");
+
+            Optional<String> result = textDialog.showAndWait();
+            result.ifPresent(text -> {
+                Text node = new Text(text);
+                node.setFill(colorSupplier.get());
+                node.setFont(selectedFont.get()); // Apply selected font and size
+
+                // Position the text at the top-left of the StackPane
+                StackPane.setAlignment(node, javafx.geometry.Pos.TOP_LEFT);
+
+                board.getChildren().add(node);
+            });
+        }
+    }
+
+    private Optional<Font> showFontSelectionDialog() {
+        // Create the font selection dialog
+        Alert dialog = new Alert(Alert.AlertType.CONFIRMATION);
+        dialog.setTitle("Select Font and Size");
+        dialog.setHeaderText("Choose font and size for the text:");
+
+        // Create font selection ComboBox
+        ComboBox<String> fontComboBox = new ComboBox<>();
+        fontComboBox.getItems().addAll("Arial", "Verdana", "Times New Roman", "Courier New");
+        fontComboBox.setValue("Tahoma");
+
+        // Create size selection ComboBox
+        ComboBox<Integer> sizeComboBox = new ComboBox<>();
+        sizeComboBox.getItems().addAll(12, 14, 16, 18, 20, 24, 30, 36, 48);
+        sizeComboBox.setValue(16);
+
+        // Add ComboBoxes to the dialog's content
+        dialog.getDialogPane().setContent(fontComboBox);
+        dialog.getDialogPane().setContent(sizeComboBox);
+
+        // Button bar with OK and Cancel buttons
+        dialog.getButtonTypes().setAll(ButtonType.OK, ButtonType.CANCEL);
+
+        // Show the dialog and get the result
+        Optional<ButtonType> result = dialog.showAndWait();
+
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            String selectedFont = fontComboBox.getValue();
+            int selectedSize = sizeComboBox.getValue();
+            return Optional.of(new Font(selectedFont, selectedSize));
+        }
+
+        return Optional.empty();
+    }
+}
